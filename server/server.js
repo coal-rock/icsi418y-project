@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { initServer } from './app.js';
+import { createDatabaseCollections, initServer } from './app.js';
 import { MongoClient } from 'mongodb';
 
 dotenv.config();
@@ -21,7 +21,7 @@ const client = new MongoClient(config.mongoUri);
 try {
     await client.connect();
     const db = client.db(config.dbName);
-
+    await createDatabaseCollections(db)
     const server = initServer({ config, db });
 
     server.listen(config.port, () => {

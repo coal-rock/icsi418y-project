@@ -2,6 +2,15 @@ import express from "express";
 import cors from "cors";
 import bcrypt from "bcrypt";
 
+export const createDatabaseCollections = async (db) => {
+    await db.collection('Projects').createIndex({ project_lead_id: 1 });
+    await db.collection('Users').createIndex({ username: 1 }, { unique: true });
+    await db.collection('ProjectMemberships').createIndex(
+        { project_id: 1, user_id: 1 },
+        { unique: true },
+    );
+}
+
 const validateTextFields = (requestFields, expectedFields) => {
     for (const expectedField of expectedFields) {
         if (typeof requestFields.get(expectedField) != "string" && request.trim().length == 0) {
@@ -22,7 +31,7 @@ export const initServer = ({ config, db }) => {
     app.use(cors({ origin: config.clientOrigin }));
     app.use(express.json());
 
-    app.get('/api', (req, res) => {
+    app.get('/api', (_req, res) => {
         res.json({ message: "API is online." });
     });
 
