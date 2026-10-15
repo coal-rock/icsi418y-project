@@ -13,7 +13,7 @@ export default function Signup() {
         setResponse(null);
 
         try {
-            const data = await signup(username, password);
+            const data = await signup(firstName, lastName, username, password);
             setResponse({ message: data.message });
             setPassword('');
         } catch (error) {

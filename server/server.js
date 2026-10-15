@@ -22,9 +22,9 @@ try {
     await client.connect();
     const db = client.db(config.dbName);
     await createDatabaseCollections(db)
-    const server = initServer({ config, db });
+    const app = initServer({ config, db });
 
-    server.listen(config.port, () => {
+    const server = app.listen(config.port, () => {
         console.log("Server is running!");
     })
 

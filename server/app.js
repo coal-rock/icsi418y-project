@@ -51,8 +51,8 @@ export const initServer = ({ config, db }) => {
         }
 
         const newUser = {
-            firstName: firstName.trim(),
-            lastName: lastName.trim(),
+            f_name: firstName.trim(),
+            l_name: lastName.trim(),
             username: username.trim(),
             password: await bcrypt.hash(password, 12),
         }
