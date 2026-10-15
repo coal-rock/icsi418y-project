@@ -42,4 +42,4 @@ cd backend
 npm run dev
 ```
 
-You should be able to see the frontend running at [](https://localhost:5173)
+You should be able to see the frontend running at [http://localhost:5173](http://localhost:5173)
