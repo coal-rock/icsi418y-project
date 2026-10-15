@@ -12,14 +12,14 @@ const validateTextFields = (requestFields, expectedFields) => {
     return true;
 }
 
-const initServer = (clientOrigin) => {
+export const initServer = ({ config, db }) => {
     const app = express();
 
     const users = db.collection('Users');
     const projects = db.collection('Projects');
     const memberships = db.collection('ProjectMemberships');
 
-    app.use(cors({ origin: clientOrigin }));
+    app.use(cors({ origin: config.clientOrigin }));
     app.use(express.json());
 
     app.get('/api', (req, res) => {

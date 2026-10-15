@@ -1,26 +1,39 @@
 import dotenv from 'dotenv';
-import { initializeServer } from './app.js';
+import { initServer } from './app.js';
+import { MongoClient } from 'mongodb';
 
 dotenv.config();
 
 const config = {
-    uri: process.env.MONGODB_URI,
+    mongoUri: process.env.MONGODB_URI,
     clientOrigin: process.env.CLIENT || 'http://localhost:5173',
     dbName: process.env.DB_TITLE || 'shank_project',
     port: Number(process.env.PORT) || 9000,
 }
 
-if (!uri) {
+if (!config.mongoUri) {
     console.log("Please specify MONGODB_URI in your .env file.");
     process.exit(1);
 }
 
-const client = new MongoClient(uri);
+const client = new MongoClient(config.mongoUri);
 
 try {
     await client.connect();
-    const db = client.db(config.port);
-    const server = initializeServer()
+    const db = client.db(config.dbName);
+
+    const server = initServer({ config, db });
+
+    server.listen(config.port, () => {
+        console.log("Server is running!");
+    })
+
+    const shutdown = async () => {
+        server.close(async () => {
+            await client.close();
+            process.exit(0);
+        });
+    }
 
     process.on('SIGINT', shutdown);
 } catch (e) {
