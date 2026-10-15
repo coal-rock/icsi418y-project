@@ -13,7 +13,8 @@ export const createDatabaseCollections = async (db) => {
 
 const validateTextFields = (requestFields, expectedFields) => {
     for (const expectedField of expectedFields) {
-        if (typeof requestFields.get(expectedField) != "string" && request.trim().length == 0) {
+        const value = requestFields[expectedField];
+        if (typeof value !== "string" || value.trim().length === 0) {
             return false;
         }
     }
@@ -25,8 +26,6 @@ export const initServer = ({ config, db }) => {
     const app = express();
 
     const users = db.collection('Users');
-    const projects = db.collection('Projects');
-    const memberships = db.collection('ProjectMemberships');
 
     app.use(cors({ origin: config.clientOrigin }));
     app.use(express.json());
@@ -35,7 +34,7 @@ export const initServer = ({ config, db }) => {
         res.json({ message: "API is online." });
     });
 
-    app.get('/api/auth/signup', async (res, req) => {
+    app.post('/api/auth/signup', async (req, res) => {
         const { firstName, lastName, username, password } = req.body || {};
 
         const valid = validateTextFields(
@@ -44,11 +43,11 @@ export const initServer = ({ config, db }) => {
         );
 
         if (!valid) {
-            return res.statusCode(400).json({ message: "First and last name, as well as username and password are required fields." });
+            return res.status(400).json({ message: "First and last name, as well as username and password are required fields." });
         }
 
         if (await users.findOne({ username: username.trim() })) {
-            return res.statusCode(409).json({ message: "Username is already in use." })
+            return res.status(409).json({ message: "Username is already in use." })
         }
 
         const newUser = {
@@ -68,10 +67,10 @@ export const initServer = ({ config, db }) => {
         }
 
 
-        res.statusCode(201).json({ message: 'Account created successfully.' });
+        res.status(201).json({ message: 'Account created successfully.' });
     });
 
-    app.get('/api/auth/login', async (res, req) => {
+    app.post('/api/auth/login', async (req, res) => {
         const { username, password } = req.body || {};
 
         const valid = validateTextFields(
@@ -80,21 +79,21 @@ export const initServer = ({ config, db }) => {
         );
 
         if (!valid) {
-            return res.statusCode(400).json({ message: "You must specify a username and password." });
+            return res.status(400).json({ message: "You must specify a username and password." });
         }
 
         const user = await users.findOne({ username: username.trim() });
         const validPassword = (user && await bcrypt.compare(password, user.password));
 
         if (!validPassword) {
-            return res.statusCode(401).json({ message: "Provided username or password was incorrect." });
+            return res.status(401).json({ message: "Provided username or password was incorrect." });
         }
 
         res.json({ message: 'Login successful.' });
     });
 
 
-    app.get('/api/auth/users', async (res, _req) => {
+    app.get('/api/auth/users', async (_req, res) => {
         const result = await users
             .find({}, { projection: { password: 0 } })
             .sort({ f_name: 1, l_name: 1, username: 1 }).toArray();
