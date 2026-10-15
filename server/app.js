@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import bcrypt from "bcrypt";
+import { ObjectId } from "mongodb";
 
 export const createDatabaseCollections = async (db) => {
     await db.collection('Projects').createIndex({ project_lead_id: 1 });
@@ -26,6 +27,8 @@ export const initServer = ({ config, db }) => {
     const app = express();
 
     const users = db.collection('Users');
+    const projects = db.collection('projects');
+    const memberships = db.collection('memberships');
 
     app.use(cors({ origin: config.clientOrigin }));
     app.use(express.json());
@@ -99,6 +102,55 @@ export const initServer = ({ config, db }) => {
             .sort({ f_name: 1, l_name: 1, username: 1 }).toArray();
 
         res.json(result);
+    });
+
+    app.post('/api/projects', async (req, res) => {
+        const { name, description, status, projectLeadId } = req.body || {};
+
+        const valid = validateTextFields(
+            { name, description, status, projectLeadId },
+            ["name", "description", "status", "projectLeadId"]
+        );
+
+        if (!valid) {
+            return res.status(400).json({ message: "Name, description, status, and project lead are all required fields." });
+        }
+
+        if (status != 'Planning' && status != 'Active' && status != 'Completed') {
+            return res.status(400).json({ message: "Recieved invalid value for status, expected: Planning, Active, or Completed" });
+        }
+
+        if (typeof projectLeadId !== 'string' || ObjectId.isValid(projectLeadId)) {
+            return res.status('Invalid project lead ID.')
+        }
+
+        if (!await users.findOne({ _id: projectLeadId })) {
+            return res.status(404).json({ message: 'Unable to find project lead.' });
+        }
+
+        const project = {
+            name: name.trim(),
+            description: description.trim(),
+            status,
+            project_lead_id: leadId,
+        };
+
+        const result = await projects.insertOne(project);
+
+        try {
+            await memberships.insertOne({ project_id: result.insertedId, user_id: leadId });
+        } catch (error) {
+            // undo project creation if unable to save project leads membership
+            await projects.deleteOne({ _id: result.insertedId });
+            throw error;
+        }
+
+        res.status(201).json({ message: 'Successfully created project and added project lead as member.', project });
+
+    })
+
+    app.get('/api/projects', async (_req, res) => {
+        res.json(await projects.find({}).toArray());
     });
 
     return app;
