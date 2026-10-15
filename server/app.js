@@ -23,12 +23,20 @@ const validateTextFields = (requestFields, expectedFields) => {
     return true;
 }
 
+function validateId(value) {
+    if (typeof value !== 'string' || !ObjectId.isValid(value)) {
+        return null;
+    }
+
+    return new ObjectId(value);
+}
+
 export const initServer = ({ config, db }) => {
     const app = express();
 
     const users = db.collection('Users');
-    const projects = db.collection('projects');
-    const memberships = db.collection('memberships');
+    const projects = db.collection('Projects');
+    const memberships = db.collection('ProjectMemberships');
 
     app.use(cors({ origin: config.clientOrigin }));
     app.use(express.json());
@@ -120,11 +128,12 @@ export const initServer = ({ config, db }) => {
             return res.status(400).json({ message: "Recieved invalid value for status, expected: Planning, Active, or Completed" });
         }
 
-        if (typeof projectLeadId !== 'string' || ObjectId.isValid(projectLeadId)) {
-            return res.status('Invalid project lead ID.')
+        const leadId = validateId(projectLeadId);
+        if (!leadId) {
+            return res.status(400).json({ message: 'Invalid project lead ID.' });
         }
 
-        if (!await users.findOne({ _id: projectLeadId })) {
+        if (!await users.findOne({ _id: leadId })) {
             return res.status(404).json({ message: 'Unable to find project lead.' });
         }
 
@@ -151,6 +160,96 @@ export const initServer = ({ config, db }) => {
 
     app.get('/api/projects', async (_req, res) => {
         res.json(await projects.find({}).toArray());
+    });
+
+    app.get('/api/projects/:projectId/members', async (req, res) => {
+        const id = validateId(req.params.projectId);
+
+        if (!id) {
+            return res.status(400).json({ message: 'Invalid project ID.' });
+        }
+
+        if (!await projects.findOne({ _id: id })) {
+            return res.status(404).json({ message: 'Unable to find project with specified ID.' });
+        }
+
+        const projectMembers = await memberships.find({ project_id: id }).toArray();
+        res.json(projectMembers);
+    });
+
+    app.post('/api/projects/:projectId/members', async (req, res) => {
+        const id = validateId(req.params.projectId);
+        if (!id) {
+            return res.status(400).json({ message: "Invalid project ID." })
+        }
+
+        const uId = validateId(req.body?.userId);
+        if (!uId) {
+            return res.status(400).json({ message: "Invalid user ID." })
+        }
+
+        if (!await projects.findOne({ _id: id })) {
+            return res.status(404).json({ message: 'The project could not be found.' });
+        }
+
+        if (!await users.findOne({ _id: uId })) {
+            return res.status(404).json({ message: 'The user could not be found.' });
+        }
+
+        const membership = { project_id: id, user_id: uId };
+        if (await memberships.findOne(membership)) {
+            return res.status(409).json({ message: 'User already exists as member of this project.' });
+        }
+
+        try {
+            await memberships.insertOne(membership);
+        } catch (error) {
+            if (error.code === 11000) {
+                return res.status(409).json({ message: 'User already exists as member of this project.' });
+            }
+            throw error;
+        }
+
+        res.status(201).json({ message: 'Member added to project successfully.', membership });
+    })
+
+    app.delete('/api/projects/:projectId/members/:userId', async (req, res) => {
+        const id = validateId(req.params.projectId);
+        if (!id) {
+            return res.status(400).json({ message: "Invalid project ID." })
+        }
+
+        const uId = validateId(req.params.userId);
+        if (!uId) {
+            return res.status(400).json({ message: "Invalid user ID." })
+        }
+
+        const project = await projects.findOne({ _id: id });
+        if (!project) {
+            return res.status(404).json({ message: 'The project could not be found' });
+        }
+
+        if (project.project_lead_id.equals(uId)) {
+            return res.status(403).json({ message: 'You cannot remove the project lead from a project.' });
+        }
+
+        if (!await users.findOne({ _id: uId })) {
+            return res.status(404).json({ message: 'The user could not be found.' });
+        }
+
+        const result = await memberships.deleteOne({ project_id: id, user_id: uId });
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: 'User is not a member of this project.' });
+        }
+
+        res.json({ message: 'Member removed.' });
+    });
+
+    app.use((error, _req, res, next) => {
+        if (res.headersSent) return next(error);
+
+        console.error(error);
+        res.status(error.status || 500).json({ message: 'Unable to process request.' });
     });
 
     return app;
