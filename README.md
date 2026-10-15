@@ -18,27 +18,27 @@ CLIENT=http://localhost:5173
 
 3. Install frontend dependencies
 ```bash
-cd frontend
+cd client 
 npm install
 cd ..
 ```
 
 4. Install backend dependencies
 ```bash
-cd backend
+cd server
 npm install
 cd ..
 ```
 
 5. In a separate terminal, start the frontend:
 ```bash
-cd frontend
+cd client
 npm run dev
 ```
 
 6. In a separate terminal, start the backend:
 ```bash
-cd backend
+cd server 
 npm run dev
 ```
 
