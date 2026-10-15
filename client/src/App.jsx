@@ -1,5 +1,8 @@
+import Login from "./components/Login";
+import './App.css';
+
 export default function App() {
     return (
-        <b>HELLO WORLD.</b>
+        <Login />
     );
 }
