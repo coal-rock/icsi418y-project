@@ -1,66 +1,71 @@
 .page {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    background-color: black;
-    gap: 12px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: black;
+  gap: 12px;
 }
 
 .title {
-    color: #e0e0e0;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    font-weight: 500;
-    font-size: 22px;
-    padding: 0px;
-    margin: 0px;
+  color: #e0e0e0;
+  font-family:
+    "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans",
+    Arial, sans-serif;
+  font-weight: 500;
+  font-size: 22px;
+  padding: 0px;
+  margin: 0px;
 }
 
-
 .center-children {
-    justify-content: center;
-    align-items: center;
+  justify-content: center;
+  align-items: center;
 }
 
 .card {
-    display: flex;
-    flex-direction: column;
-    border: 2px solid #e0e0e0;
-    padding: 20px 20px;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #e0e0e0;
+  padding: 20px 20px;
 }
 
 .form {
-    display: flex;
-    flex-grow: 1;
-    flex-direction: column;
-    justify-content: start;
-    align-items: center;
-    gap: 12px;
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  gap: 12px;
 }
 
 .field {
-    display: flex;
-    flex-direction: column;
-    color: #e0e0e0;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    gap: 4px;
+  display: flex;
+  flex-direction: column;
+  color: #e0e0e0;
+  font-family:
+    "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans",
+    Arial, sans-serif;
+  gap: 4px;
 }
 
-.field>input {
-    background-color: black;
-    color: #e0e0e0;
-    border: 1px solid #e0e0e0;
+.field > input {
+  background-color: black;
+  color: #e0e0e0;
+  border: 1px solid #e0e0e0;
 }
 
 .primary {
-    background-color: black;
-    border: 1px solid #e0e0e0;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    color: #e0e0e0;
-    align-self: flex-end;
+  background-color: black;
+  border: 1px solid #e0e0e0;
+  font-family:
+    "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans",
+    Arial, sans-serif;
+  color: #e0e0e0;
+  align-self: flex-end;
 }
 
 .primary:hover {
-    cursor: pointer;
-    text-decoration: underline;
+  cursor: pointer;
+  text-decoration: underline;
 }
