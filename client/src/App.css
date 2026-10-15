@@ -41,6 +41,7 @@
 
 .field {
   display: flex;
+  align-self: start;
   flex-direction: column;
   color: #e0e0e0;
   font-family:
@@ -49,10 +50,25 @@
   gap: 4px;
 }
 
-.field > input {
+.field > input,
+.field > textarea,
+.field > select {
   background-color: black;
   color: #e0e0e0;
   border: 1px solid #e0e0e0;
+  font: inherit;
+}
+
+.field > textarea {
+  resize: vertical;
+}
+
+.link,
+.text {
+  color: #e0e0e0;
+  font-family:
+    "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans",
+    Arial, sans-serif;
 }
 
 .primary {
@@ -68,4 +84,24 @@
 .primary:hover {
   cursor: pointer;
   text-decoration: underline;
+}
+
+.table-container {
+  box-sizing: border-box;
+  max-width: 90%;
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.project-table {
+  border-collapse: collapse;
+}
+
+.project-table th,
+.project-table td {
+  border: 1px solid #e0e0e0;
+  padding: 8px 12px;
+  text-align: left;
+  max-width: 300px;
+  overflow-wrap: anywhere;
 }

@@ -73,11 +73,19 @@ export default function Signup() {
         </form>
       </div>
 
-      <Link className="field" to="/login">
+      <Link className="link" to="/login">
         Log in
       </Link>
 
-      {response && <p className="field">{response.message}</p>}
+      <Link className="link" to="/projects/new">
+        Create a project
+      </Link>
+
+      <Link className="link" to="/projects">
+        View projects
+      </Link>
+
+      {response && <p className="text">{response.message}</p>}
     </div>
   );
 }
